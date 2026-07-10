@@ -38,6 +38,7 @@ Useful settings:
 
 - `crisis.collectionUrl`: Shopify collection URL to watch.
 - `crisis.vendors`: exact Shopify vendor names to keep from that collection.
+- `crisis.preferredLabelSizes`: Shopify variant/option sizes to keep from that collection.
 - `*.fit.tops`: chest, label-size, and cut preferences.
 - `*.fit.bottoms`: waist, inseam, and cut preferences.
 - `*.fit.shoes`: shoe size preferences.

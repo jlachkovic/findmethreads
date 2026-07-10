@@ -35,9 +35,10 @@ async function main() {
     .filter((product) => isAvailable(product))
     .filter((product) => inferGarment(product, productText(product).toLowerCase()) !== "ignored")
     .filter((product) => config.crisis.vendors.includes(product.vendor))
+    .filter((product) => hasPreferredShopifySize(product, config.crisis.preferredLabelSizes ?? []))
     .map((product) => toMatch("crisis", product, {
       status: "strong_match",
-      reason: `${product.vendor} appeared in the configured Shopify collection`
+      reason: `${product.vendor} appeared in the configured Shopify collection in a preferred size`
     }));
 
   const moodMatches = enrichedMoodProducts
@@ -302,6 +303,32 @@ function productText(product, extra = "") {
     product.body_html ?? product.description ?? "",
     extra
   ].join("\n"));
+}
+
+export function hasPreferredShopifySize(product, preferredSizes) {
+  if (!preferredSizes.length) return true;
+  const preferred = new Set(preferredSizes.map(normalizeLabelSize).filter(Boolean));
+  return shopifySizeValues(product).some((value) => preferred.has(normalizeLabelSize(value)));
+}
+
+function shopifySizeValues(product) {
+  const values = [];
+  for (const option of product.options ?? []) {
+    if (/\bsize\b/i.test(option.name ?? "")) values.push(...(option.values ?? []));
+  }
+  for (const variant of product.variants ?? []) {
+    values.push(variant.option1, variant.option2, variant.option3);
+    if (variant.title && variant.title !== "Default Title") values.push(...variant.title.split(/\s*\/\s*/));
+  }
+  return values.filter(Boolean);
+}
+
+function normalizeLabelSize(value) {
+  const text = String(value ?? "").trim().toUpperCase();
+  if (!text) return "";
+  if (["MEDIUM", "M"].includes(text)) return "M";
+  if (["LARGE", "L"].includes(text)) return "L";
+  return text;
 }
 
 function isJsArchiveCandidate(product) {

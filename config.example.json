@@ -3,6 +3,10 @@
     "collectionUrl": "https://shopfromcrisis.org.uk/collections/men?sort_by=created-descending&filter.p.vendor=Example+Brand",
     "vendors": [
       "Example Brand"
+    ],
+    "preferredLabelSizes": [
+      "M",
+      "L"
     ]
   },
   "mood": {

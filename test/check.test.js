@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { classifyMoodProduct, extractMeasurements } from "../src/check.js";
+import { classifyMoodProduct, extractMeasurements, hasPreferredShopifySize } from "../src/check.js";
 
 const fit = {
   tops: {
@@ -217,4 +217,23 @@ Shoe width: 10 cm</span>
   assert.equal(result.measurements.shoeEu, 42);
   assert.equal(result.status, "too_small");
   assert.match(result.reason, /UK 9/);
+});
+
+test("matches preferred Shopify variant sizes", () => {
+  assert.equal(hasPreferredShopifySize({
+    options: [{ name: "Size", values: ["S", "M", "XL"] }],
+    variants: []
+  }, ["M", "L"]), true);
+
+  assert.equal(hasPreferredShopifySize({
+    options: [{ name: "Size", values: ["Small"] }],
+    variants: [{ title: "Large / Navy", option1: "Large", option2: "Navy" }]
+  }, ["M", "L"]), true);
+});
+
+test("rejects Shopify products without preferred variant sizes", () => {
+  assert.equal(hasPreferredShopifySize({
+    options: [{ name: "Size", values: ["XS", "S", "XL"] }],
+    variants: [{ title: "Small / Navy", option1: "Small", option2: "Navy" }]
+  }, ["M", "L"]), false);
 });
