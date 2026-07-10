@@ -222,6 +222,7 @@ async function fetchJsArchiveProduct(url) {
   const image = Array.isArray(product.image)
     ? product.image[0]?.contentUrl
     : product.image?.contentUrl ?? product.image;
+  const offer = getCaseInsensitive(product, "offers");
   return {
     id: product.sku ?? slugFromUrl(url),
     title: htmlEntityDecode(product.name ?? slugFromUrl(url)),
@@ -230,10 +231,31 @@ async function fetchJsArchiveProduct(url) {
     handle: slugFromUrl(url),
     url,
     images: image ? [image] : [],
-    price: product.offers?.price ?? product.price,
+    price: extractJsArchivePrice(product, html),
     published_at: null,
-    available: product.offers?.availability ? !String(product.offers.availability).includes("OutOfStock") : true
+    available: offer?.availability || offer?.Availability ? !String(offer.availability ?? offer.Availability).includes("OutOfStock") : true
   };
+}
+
+export function extractJsArchivePrice(product, html = "") {
+  const offer = getCaseInsensitive(product, "offers");
+  const offerPrice = getCaseInsensitive(offer, "price");
+  const productPrice = getCaseInsensitive(product, "price");
+  const metaPrice = html.match(/<meta\s+property=["']product:price:amount["']\s+content=["']([^"']+)["']/i)?.[1];
+  const wixPrice = html.match(/data-hook=["']formatted-primary-price["'][^>]*data-wix-price=["']£?([0-9,.]+)/i)?.[1];
+  return parsePrice(offerPrice ?? productPrice ?? metaPrice ?? wixPrice);
+}
+
+function getCaseInsensitive(object, key) {
+  if (!object || typeof object !== "object") return undefined;
+  const foundKey = Object.keys(object).find((candidate) => candidate.toLowerCase() === key.toLowerCase());
+  return foundKey ? object[foundKey] : undefined;
+}
+
+function parsePrice(value) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const number = Number(String(value).replace(/[^0-9.]/g, ""));
+  return Number.isFinite(number) ? number : undefined;
 }
 
 function extractJsonLdProduct(html) {

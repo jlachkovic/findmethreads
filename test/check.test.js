@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { classifyMoodProduct, extractMeasurements, hasPreferredShopifySize } from "../src/check.js";
+import { classifyMoodProduct, extractJsArchivePrice, extractMeasurements, hasPreferredShopifySize } from "../src/check.js";
 
 const fit = {
   tops: {
@@ -111,6 +111,21 @@ test("parses JS Archive inch-mark measurements", () => {
   assert.equal(result.status, "strong_match");
   assert.equal(result.measurements.pitToPitIn, 22);
   assert.match(result.reason, /44 in/);
+});
+
+test("parses JS Archive price from uppercase JSON-LD Offers", () => {
+  assert.equal(extractJsArchivePrice({
+    Offers: {
+      "@type": "Offer",
+      priceCurrency: "GBP",
+      price: "195"
+    }
+  }), 195);
+});
+
+test("parses JS Archive price from page HTML fallbacks", () => {
+  assert.equal(extractJsArchivePrice({}, '<meta property="product:price:amount" content="195"/>'), 195);
+  assert.equal(extractJsArchivePrice({}, '<span data-hook="formatted-primary-price" data-wix-price="£195.00">£195.00</span>'), 195);
 });
 
 test("parses Mood Waist labels from rendered attributes", () => {
