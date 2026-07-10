@@ -349,12 +349,12 @@ export function classifyMoodProduct(product, fit) {
 }
 
 function productText(product, extra = "") {
-  return htmlToText([
-    product.title,
-    product.vendor,
-    product.body_html ?? product.description ?? "",
+  return [
+    htmlToText(product.title ?? ""),
+    htmlToText(product.vendor ?? ""),
+    htmlToText(product.body_html ?? product.description ?? ""),
     extra
-  ].join("\n"));
+  ].join("\n");
 }
 
 function resolveFit(config, store) {
@@ -406,7 +406,7 @@ function isGeneralFitCandidate(product) {
 }
 
 function isExcludedItemText(text) {
-  return /\b(women|women's|female|look book|catalogue|catalog|book|bag|handbag|tote|scarf|scarves|tie|necktie|bow tie|belt|sunglasses|glasses|pumps|stilettos|skirt|dress|tunic|gown|blouse|t-shirt|tshirt|tee|tees)\b/.test(text)
+  return /\b(woman|women|womens|women's|female|ladies|lady|look book|catalogue|catalog|book|bag|handbag|tote|scarf|scarves|tie|necktie|bow tie|belt|sunglasses|glasses|pumps|stilettos|skirt|dress|tunic|gown|blouse|t-shirt|tshirt|tee|tees)\b/.test(text)
     || hasWomensUkClothingSize(text);
 }
 
@@ -553,8 +553,18 @@ function classifyBottom(measurements, lower, fit) {
 
 export function extractMeasurements(text) {
   const normalized = text.replace(/\s+/g, " ");
+  const valueFirstText = text.replace(/[ \t]+/g, " ");
   const measurements = {};
-  const patterns = [
+  const valueFirstPatterns = [
+    ["chestIn", /(\d+(?:\.\d+)?)[^\S\r\n]*(cm\b|in\b|inch\b|inches\b|"|“|”)[^\S\r\n]*(?:chest|bust)\b/igm],
+    ["pitToPitIn", /(\d+(?:\.\d+)?)[^\S\r\n]*(cm\b|in\b|inch\b|inches\b|"|“|”)[^\S\r\n]*(?:pit to pit|p2p|body width|width)\b/igm],
+    ["shoulderIn", /(\d+(?:\.\d+)?)[^\S\r\n]*(cm\b|in\b|inch\b|inches\b|"|“|”)[^\S\r\n]*(?:shoulder(?: width| to shoulder)?)\b/igm],
+    ["waistIn", /(\d+(?:\.\d+)?)[^\S\r\n]*(cm\b|in\b|inch\b|inches\b|"|“|”)[^\S\r\n]*waist\b/igm],
+    ["inseamIn", /(\d+(?:\.\d+)?)[^\S\r\n]*(cm\b|in\b|inch\b|inches\b|"|“|”)[^\S\r\n]*(?:inseam|inside leg|inside seam)\b/igm],
+    ["riseIn", /(\d+(?:\.\d+)?)[^\S\r\n]*(cm\b|in\b|inch\b|inches\b|"|“|”)[^\S\r\n]*rise\b/igm],
+    ["lengthIn", /(\d+(?:\.\d+)?)[^\S\r\n]*(cm\b|in\b|inch\b|inches\b|"|“|”)[^\S\r\n]*(?:back length|body length|length at back)\b/igm]
+  ];
+  const labelFirstPatterns = [
     ["chestIn", /\b(?:chest|bust)\b[^0-9]{0,24}(\d+(?:\.\d+)?)[ \t]*(cm\b|in\b|inch\b|inches\b|")?/ig],
     ["pitToPitIn", /\b(?:pit to pit|p2p|body width|width)\b[^0-9]{0,24}(\d+(?:\.\d+)?)[ \t]*(cm\b|in\b|inch\b|inches\b|")?/ig],
     ["shoulderIn", /\bshoulder(?: width| to shoulder)?\b[^0-9]{0,24}(\d+(?:\.\d+)?)[ \t]*(cm\b|in\b|inch\b|inches\b|")?/ig],
@@ -564,7 +574,13 @@ export function extractMeasurements(text) {
     ["lengthIn", /\blength(?: at back)?\b[^0-9]{0,24}(\d+(?:\.\d+)?)[ \t]*(cm\b|in\b|inch\b|inches\b|")?/ig]
   ];
 
-  for (const [key, pattern] of patterns) {
+  for (const [key, pattern] of valueFirstPatterns) {
+    const match = [...valueFirstText.matchAll(pattern)][0];
+    if (!match) continue;
+    measurements[key] = toInches(Number(match[1]), match[2]);
+  }
+  for (const [key, pattern] of labelFirstPatterns) {
+    if (measurements[key]) continue;
     const match = [...normalized.matchAll(pattern)][0];
     if (!match) continue;
     measurements[key] = toInches(Number(match[1]), match[2]);
@@ -592,7 +608,7 @@ function extractShoeMeasurements(text) {
 }
 
 function toInches(value, unit) {
-  if (unit === "\"") return value;
+  if (unit === "\"" || unit === "“" || unit === "”") return value;
   if (!unit || unit.toLowerCase() === "cm") return value / 2.54;
   return value;
 }

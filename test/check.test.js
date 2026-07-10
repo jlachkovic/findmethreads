@@ -113,6 +113,27 @@ test("parses JS Archive inch-mark measurements", () => {
   assert.match(result.reason, /44 in/);
 });
 
+test("parses number-first inch measurements", () => {
+  const result = classifyMoodProduct({
+    title: "Armani 1990s Beige Cotton Shirt - Size XL",
+    vendor: "NDWC0SHOP",
+    body_html: `
+      Size: XL
+      Measurements:
+      24“ Pit to Pit
+      20" Shoulder to Shoulder
+      32“ Back Length
+      25“ Sleeve Length
+    `
+  }, fit);
+
+  assert.equal(result.status, "maybe_match");
+  assert.equal(result.measurements.pitToPitIn, 24);
+  assert.equal(result.measurements.shoulderIn, 20);
+  assert.equal(result.measurements.lengthIn, 32);
+  assert.match(result.reason, /48 in/);
+});
+
 test("parses JS Archive price from uppercase JSON-LD Offers", () => {
   assert.equal(extractJsArchivePrice({
     Offers: {
@@ -221,6 +242,21 @@ test("ignores womens UK clothing sizes", () => {
   }, fit);
 
   assert.equal(result.status, "ignored");
+});
+
+test("ignores womens and ladies wording", () => {
+  for (const body_html of [
+    "Womens tailored jacket. Pit to pit 23 in.",
+    "Ladies wool blazer. Pit to pit 23 in."
+  ]) {
+    const result = classifyMoodProduct({
+      title: "Example tailored jacket",
+      vendor: "M1 Vintage Lab",
+      body_html
+    }, fit);
+
+    assert.equal(result.status, "ignored", body_html);
+  }
 });
 
 test("classifies explicit UK 10.5 shoes as matches", () => {
