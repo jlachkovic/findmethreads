@@ -213,6 +213,16 @@ test("ignores t-shirts and tees", () => {
   }
 });
 
+test("ignores womens UK clothing sizes", () => {
+  const result = classifyMoodProduct({
+    title: "Jil Sander tailored wool jacket",
+    vendor: "Jil Sander",
+    body_html: "Marked UK 14. Pit to pit 23 in."
+  }, fit);
+
+  assert.equal(result.status, "ignored");
+});
+
 test("classifies explicit UK 10.5 shoes as matches", () => {
   const result = classifyMoodProduct({
     title: "Example leather derby shoes",

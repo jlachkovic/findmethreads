@@ -306,6 +306,16 @@ export function classifyMoodProduct(product, fit) {
   const measurements = extractMeasurements(text);
   const labelSize = extractLabelSize(text);
 
+  if (isExcludedItemText(lower)) {
+    return {
+      status: "ignored",
+      reason: "Skipped garment type or size label outside the current watch list",
+      garment: "ignored",
+      measurements,
+      labelSize
+    };
+  }
+
   if (hasAny(lower, [...fit.tops.avoidTerms, ...fit.bottoms.avoidTerms])) {
     return {
       status: "too_small",
@@ -396,7 +406,16 @@ function isGeneralFitCandidate(product) {
 }
 
 function isExcludedItemText(text) {
-  return /\b(women|women's|female|look book|catalogue|catalog|book|bag|handbag|tote|scarf|scarves|tie|necktie|bow tie|belt|sunglasses|glasses|pumps|stilettos|skirt|dress|tunic|gown|blouse|t-shirt|tshirt|tee|tees)\b/.test(text);
+  return /\b(women|women's|female|look book|catalogue|catalog|book|bag|handbag|tote|scarf|scarves|tie|necktie|bow tie|belt|sunglasses|glasses|pumps|stilettos|skirt|dress|tunic|gown|blouse|t-shirt|tshirt|tee|tees)\b/.test(text)
+    || hasWomensUkClothingSize(text);
+}
+
+function hasWomensUkClothingSize(text) {
+  if (/\b(shoe|shoes|sneaker|sneakers|loafer|loafers|boot|boots|derby|footwear|trainers|lace-ups)\b/.test(text)) {
+    return false;
+  }
+  return /\b(?:uk|u\.k\.)\s*(?:size)?\s*:?\s*(?:6|8|10|12|14|16|18)\b/i.test(text)
+    || /\bsize\s*:?\s*(?:uk|u\.k\.)\s*(?:6|8|10|12|14|16|18)\b/i.test(text);
 }
 
 function classifyShoe(measurements, labelSize, lower, fit) {
