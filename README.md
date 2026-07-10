@@ -39,6 +39,7 @@ Useful settings:
 - `crisis.collectionUrl`: Shopify collection URL to watch.
 - `crisis.vendors`: exact Shopify vendor names to keep from that collection.
 - `crisis.preferredLabelSizes`: Shopify variant/option sizes to keep from that collection.
+- `shopifyFitStores`: extra Shopify collections to filter through the configured fit rules.
 - `*.fit.tops`: chest, label-size, and cut preferences.
 - `*.fit.bottoms`: waist, inseam, and cut preferences.
 - `*.fit.shoes`: shoe size preferences.
@@ -47,6 +48,18 @@ Useful settings:
 - `run.openReportWhenMatchesFound`: automatically open the HTML report when new matches are found.
 
 The committed `config.example.json` contains illustrative values only. Copy it to `config.json` and replace the URLs, brands, and measurements with your own.
+
+An extra Shopify fit-filtered store looks like:
+
+```json
+{
+  "key": "example-store",
+  "name": "Example Store",
+  "collectionUrl": "https://example.com/collections/new-arrivals",
+  "baseUrl": "https://example.com",
+  "fitSource": "mood"
+}
+```
 
 ## Run daily on macOS
 

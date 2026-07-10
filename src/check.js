@@ -28,6 +28,19 @@ async function main() {
   const jsArchiveProducts = await fetchJsArchiveProducts(config.jsArchive.shopUrl, config.jsArchive.maxPages);
   await sleep(1000);
   const bluehorseProducts = await fetchShopifyCollection(config.bluehorse.collectionUrl, config.run.maxProductsPerSite);
+  const shopifyFitStoreResults = [];
+  for (const store of config.shopifyFitStores ?? []) {
+    await sleep(1000);
+    try {
+      shopifyFitStoreResults.push({
+        store,
+        products: await fetchShopifyCollection(store.collectionUrl, config.run.maxProductsPerSite)
+      });
+    } catch (error) {
+      console.warn(`Skipped ${store.name ?? store.key}: ${error.message}`);
+      shopifyFitStoreResults.push({ store, products: [] });
+    }
+  }
 
   const enrichedMoodProducts = await mapWithConcurrency(moodProducts, 3, enrichMoodProduct);
 
@@ -57,7 +70,13 @@ async function main() {
     .map((product) => toMatch("bluehorse", product, classifyMoodProduct(product, config.bluehorse.fit)))
     .filter((match) => ["strong_match", "maybe_match"].includes(match.status));
 
-  const allMatches = [...crisisMatches, ...moodMatches, ...jsArchiveMatches, ...bluehorseMatches];
+  const shopifyFitMatches = shopifyFitStoreResults.flatMap(({ store, products }) => products
+    .filter((product) => isAvailable(product))
+    .filter(isGeneralFitCandidate)
+    .map((product) => toMatch(store.key, product, classifyMoodProduct(product, resolveFit(config, store)), store))
+    .filter((match) => ["strong_match", "maybe_match"].includes(match.status)));
+
+  const allMatches = [...crisisMatches, ...moodMatches, ...jsArchiveMatches, ...bluehorseMatches, ...shopifyFitMatches];
   const isFirstRun = Object.keys(seen.products).length === 0;
   const newMatches = isFirstRun ? [] : allMatches.filter((match) => !seen.products[match.key]);
 
@@ -83,7 +102,8 @@ async function main() {
       crisis: crisisProducts.length,
       mood: moodProducts.length,
       jsArchive: jsArchiveProducts.length,
-      bluehorse: bluehorseProducts.length
+      bluehorse: bluehorseProducts.length,
+      ...Object.fromEntries(shopifyFitStoreResults.map(({ store, products }) => [store.key, products.length]))
     }
   };
 
@@ -305,6 +325,12 @@ function productText(product, extra = "") {
   ].join("\n"));
 }
 
+function resolveFit(config, store) {
+  if (store.fit) return store.fit;
+  if (store.fitSource) return config[store.fitSource]?.fit;
+  return config.mood.fit;
+}
+
 export function hasPreferredShopifySize(product, preferredSizes) {
   if (!preferredSizes.length) return true;
   const preferred = new Set(preferredSizes.map(normalizeLabelSize).filter(Boolean));
@@ -333,7 +359,7 @@ function normalizeLabelSize(value) {
 
 function isJsArchiveCandidate(product) {
   const text = productText(product).toLowerCase();
-  if (/\b(women|women's|female|look book|catalogue|catalog|book|bag|handbag|tote|scarf|scarves|tie|necktie|bow tie|belt|sunglasses|glasses|pumps|stilettos|skirt|dress|tunic|gown|blouse)\b/.test(text)) {
+  if (isExcludedItemText(text)) {
     return false;
   }
   return inferGarment(product, text) !== "ignored";
@@ -341,10 +367,14 @@ function isJsArchiveCandidate(product) {
 
 function isGeneralFitCandidate(product) {
   const text = productText(product).toLowerCase();
-  if (/\b(women|women's|female|look book|catalogue|catalog|book|bag|handbag|tote|scarf|scarves|tie|necktie|bow tie|belt|sunglasses|glasses|pumps|stilettos|skirt|dress|tunic|gown)\b/.test(text)) {
+  if (isExcludedItemText(text)) {
     return false;
   }
   return inferGarment(product, text) !== "ignored";
+}
+
+function isExcludedItemText(text) {
+  return /\b(women|women's|female|look book|catalogue|catalog|book|bag|handbag|tote|scarf|scarves|tie|necktie|bow tie|belt|sunglasses|glasses|pumps|stilettos|skirt|dress|tunic|gown|blouse|t-shirt|tshirt|tee|tees)\b/.test(text);
 }
 
 function classifyShoe(measurements, labelSize, lower, fit) {
@@ -556,7 +586,7 @@ function extractLabelSize(text) {
 
 function inferGarment(product, lower) {
   const title = `${product.title} ${product.type ?? ""}`.toLowerCase();
-  if (/\b(skirt|dress|tunic|gown|bag|handbag|scarf|scarves|tie|necktie|bow tie)\b/.test(title)) return "ignored";
+  if (/\b(skirt|dress|tunic|gown|bag|handbag|scarf|scarves|tie|necktie|bow tie|t-shirt|tshirt|tee|tees)\b/.test(title)) return "ignored";
   if (/\b(shoe|shoes|sneaker|sneakers|loafer|loafers|boot|boots|derby|footwear)\b/.test(title)) return "shoe";
   if (/\b(trouser|pants|jeans|denim|shorts|slacks)\b/.test(title)) return "bottom";
   if (/\b(shirt|jacket|coat|knit|sweater|cardigan|tee|t-shirt|polo|blouse|hoodie|sweatshirt|top)\b/.test(title)) return "top";
@@ -565,7 +595,7 @@ function inferGarment(product, lower) {
   return "unknown";
 }
 
-function toMatch(site, product, classification) {
+function toMatch(site, product, classification, store = null) {
   const price = product.variants?.[0]?.price
     ? Number(product.variants[0].price)
     : product.price_min
@@ -579,7 +609,7 @@ function toMatch(site, product, classification) {
     id: product.id,
     title: product.title,
     vendor: product.vendor,
-    url: productUrl(site, product),
+    url: productUrl(site, product, store),
     image: product.images?.[0]?.src ?? product.images?.[0],
     price,
     publishedAt: product.published_at,
@@ -596,8 +626,9 @@ function isAvailable(product) {
   return product.variants?.some((variant) => variant.available) ?? true;
 }
 
-function productUrl(site, product) {
+function productUrl(site, product, store = null) {
   if (product.url) return product.url;
+  if (store?.baseUrl) return `${store.baseUrl.replace(/\/$/, "")}/products/${product.handle}`;
   const bases = {
     crisis: "https://shopfromcrisis.org.uk",
     mood: "https://mood-by-link.com/en-uk",

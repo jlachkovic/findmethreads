@@ -183,6 +183,21 @@ test("ignores bags, scarves, and ties", () => {
   }
 });
 
+test("ignores t-shirts and tees", () => {
+  for (const title of [
+    "Example Brand Logo T-Shirt",
+    "Example Brand Pocket Tee"
+  ]) {
+    const result = classifyMoodProduct({
+      title,
+      vendor: "MOOD",
+      body_html: "Pit to pit 22 in"
+    }, fit);
+
+    assert.equal(result.status, "ignored", title);
+  }
+});
+
 test("classifies explicit UK 10.5 shoes as matches", () => {
   const result = classifyMoodProduct({
     title: "Example leather derby shoes",

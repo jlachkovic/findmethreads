@@ -218,6 +218,7 @@
       }
     }
   },
+  "shopifyFitStores": [],
   "run": {
     "maxProductsPerSite": 120,
     "notifyOnMatches": true,
