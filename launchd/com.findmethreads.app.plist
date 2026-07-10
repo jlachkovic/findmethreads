@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.findmethreads.app</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd "__PROJECT_DIR__" &amp;&amp; /usr/bin/env npm run check</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>9</integer>
+    <key>Minute</key>
+    <integer>15</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>__PROJECT_DIR__/data/launchd.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROJECT_DIR__/data/launchd.err.log</string>
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>

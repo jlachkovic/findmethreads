@@ -1,0 +1,222 @@
+{
+  "crisis": {
+    "collectionUrl": "https://shopfromcrisis.org.uk/collections/men?sort_by=created-descending&filter.p.vendor=Example+Brand",
+    "vendors": [
+      "Example Brand"
+    ]
+  },
+  "mood": {
+    "collectionUrl": "https://mood-by-link.com/en-uk/collections/mood-all",
+    "fit": {
+      "tops": {
+        "targetChestIn": 42,
+        "minChestIn": 39,
+        "idealMaxChestIn": 46,
+        "absoluteMaxChestIn": 50,
+        "preferredLabelSizes": [
+          "M",
+          "L"
+        ],
+        "preferredEuSize": 50,
+        "minEuSize": 48,
+        "avoidTerms": [
+          "skinny",
+          "slim fit",
+          "very slim",
+          "tight"
+        ],
+        "preferTerms": [
+          "oversized",
+          "boxy",
+          "relaxed",
+          "wide"
+        ]
+      },
+      "bottoms": {
+        "targetWaistIn": 32,
+        "minWaistIn": 31,
+        "idealMaxWaistIn": 34,
+        "absoluteMaxWaistIn": 36,
+        "targetInseamIn": 30,
+        "minInseamIn": 28,
+        "maxInseamIn": 32,
+        "avoidTerms": [
+          "skinny",
+          "slim fit",
+          "very slim",
+          "tight"
+        ],
+        "preferTerms": [
+          "wide",
+          "straight",
+          "relaxed",
+          "baggy",
+          "tapered"
+        ]
+      },
+      "shoes": {
+        "targetUk": 9,
+        "minUk": 8.5,
+        "maxUk": 9.5,
+        "preferredTerms": [
+          "shoe",
+          "shoes",
+          "sneaker",
+          "sneakers",
+          "loafer",
+          "loafers",
+          "boot",
+          "boots",
+          "derby",
+          "footwear"
+        ]
+      }
+    }
+  },
+  "jsArchive": {
+    "shopUrl": "https://www.jsarchive.com/shop",
+    "maxPages": 4,
+    "fit": {
+      "tops": {
+        "targetChestIn": 42,
+        "minChestIn": 39,
+        "idealMaxChestIn": 46,
+        "absoluteMaxChestIn": 50,
+        "preferredLabelSizes": [
+          "M",
+          "L"
+        ],
+        "preferredEuSize": 50,
+        "minEuSize": 48,
+        "avoidTerms": [
+          "skinny",
+          "slim fit",
+          "very slim",
+          "tight"
+        ],
+        "preferTerms": [
+          "oversized",
+          "boxy",
+          "relaxed",
+          "wide"
+        ]
+      },
+      "bottoms": {
+        "targetWaistIn": 32,
+        "minWaistIn": 31,
+        "idealMaxWaistIn": 34,
+        "absoluteMaxWaistIn": 36,
+        "targetInseamIn": 30,
+        "minInseamIn": 28,
+        "maxInseamIn": 32,
+        "avoidTerms": [
+          "skinny",
+          "slim fit",
+          "very slim",
+          "tight"
+        ],
+        "preferTerms": [
+          "wide",
+          "straight",
+          "relaxed",
+          "baggy",
+          "tapered"
+        ]
+      },
+      "shoes": {
+        "targetUk": 9,
+        "minUk": 8.5,
+        "maxUk": 9.5,
+        "preferredTerms": [
+          "shoe",
+          "shoes",
+          "sneaker",
+          "sneakers",
+          "loafer",
+          "loafers",
+          "boot",
+          "boots",
+          "derby",
+          "footwear",
+          "trainers",
+          "lace-ups"
+        ]
+      }
+    }
+  },
+  "bluehorse": {
+    "collectionUrl": "https://bluehorse-clothing.com/collections/new-arrivals",
+    "fit": {
+      "tops": {
+        "targetChestIn": 42,
+        "minChestIn": 39,
+        "idealMaxChestIn": 46,
+        "absoluteMaxChestIn": 50,
+        "preferredLabelSizes": [
+          "M",
+          "L"
+        ],
+        "preferredEuSize": 50,
+        "minEuSize": 48,
+        "avoidTerms": [
+          "skinny",
+          "slim fit",
+          "very slim",
+          "tight"
+        ],
+        "preferTerms": [
+          "oversized",
+          "boxy",
+          "relaxed",
+          "wide"
+        ]
+      },
+      "bottoms": {
+        "targetWaistIn": 32,
+        "minWaistIn": 31,
+        "idealMaxWaistIn": 34,
+        "absoluteMaxWaistIn": 36,
+        "targetInseamIn": 30,
+        "minInseamIn": 28,
+        "maxInseamIn": 32,
+        "avoidTerms": [
+          "skinny",
+          "slim fit",
+          "very slim",
+          "tight"
+        ],
+        "preferTerms": [
+          "wide",
+          "straight",
+          "relaxed",
+          "baggy",
+          "tapered"
+        ]
+      },
+      "shoes": {
+        "targetUk": 9,
+        "minUk": 8.5,
+        "maxUk": 9.5,
+        "preferredTerms": [
+          "shoe",
+          "shoes",
+          "sneaker",
+          "sneakers",
+          "loafer",
+          "loafers",
+          "boot",
+          "boots",
+          "derby",
+          "footwear",
+          "trainers",
+          "lace-ups"
+        ]
+      }
+    }
+  },
+  "run": {
+    "maxProductsPerSite": 120,
+    "notifyOnMatches": true,
+    "openReportWhenMatchesFound": false
+  }
+}

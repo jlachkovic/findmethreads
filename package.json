@@ -1,0 +1,14 @@
+{
+  "name": "findmethreads",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node src/check.js",
+    "test": "node --test",
+    "reset": "rm -f data/seen-products.json data/latest-report.html data/latest-report.json"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
